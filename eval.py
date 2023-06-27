@@ -164,7 +164,10 @@ def calc_framewise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names:
         prec = tp / num_recoged_as_label
         recall = tp / num_gtruth_is_label
 
-        f1_scores[i] = 2 * (prec * recall) / (prec + recall)
+        if abs(prec + recall) < 1e-10:  # avoid zero-division
+            f1_scores[i] = 0
+        else:
+            f1_scores[i] = 2 * (prec * recall) / (prec + recall)
 
     return f1_scores
 
