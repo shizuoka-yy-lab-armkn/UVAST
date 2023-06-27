@@ -239,6 +239,14 @@ class Trainer:
 
     def inference(self, testing_dataloader, testloader, epoch, device):
         actions_dict_inv = {v: k for k, v in testing_dataloader.actions_dict_call.items()}
+        all_cls_names: list[str] = list(actions_dict_inv.values())
+
+        assert all(name.isdigit() for name in all_cls_names)
+        all_cls_names.sort(key=lambda name: int(name))
+
+        print(f"{actions_dict_inv=}")
+        print(f"{all_cls_names=}")
+
         self.model.eval()
 
         metrics_framewise = Metrics()
@@ -320,7 +328,9 @@ class Trainer:
                     pred_seg_expanded_dur = torch.clamp(pred_seg_expanded_dur, min=0, max=self.args.num_classes)
                     recog_seg_dur = self.convert_id_to_actions(pred_seg_expanded_dur, gt_org, actions_dict_inv)
                     update_metrics(recog_seg_dur, gt_cls_names, metrics_segmentwise_dur)
-                    calc_framewise_f1_score(recog_seg_dur, gt_cls_names)
+                    fscores = calc_framewise_f1_score(recog_seg_dur, gt_cls_names, all_cls_names)
+                    print("val framewise-labelwise F1:", *fscores)
+                    print("val mean(framewise-labelwise F1):", fscores.mean())
 
                 # evaluation with Viterbi
                 if self.args.use_viterbi:

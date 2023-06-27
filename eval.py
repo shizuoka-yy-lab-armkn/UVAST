@@ -147,11 +147,26 @@ def main(data_root, results_path, dataset, split):
     return acc, edit, f1s
 
 
-def calc_framewise_f1_score(recogs: list[str], gt: list[str]) -> None:
+def calc_framewise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names: list[str]) -> np.ndarray:
     print("- - - - - - - - - - - -")
-    print(f"{len(recogs)=}, {len(gt)=}")
-    print(f"{type(recogs[0])}, {type(gt[0])=}")
-    print(f"{recogs[:5]}, {type(gt[:5])=}")
+    print(f"{len(recogs)=}, {len(gtruth)=}")
+    assert type(recogs[0]) is str
+    assert type(gtruth[0]) is str
+    assert len(recogs) == len(gtruth)
+
+    f1_scores = np.zeros(len(all_cls_names))
+
+    for i, label in enumerate(all_cls_names):
+        tp = sum(p == t == label for p, t in zip(recogs, gtruth))
+        num_recoged_as_label = sum(p == label for p in recogs)
+        num_gtruth_is_label = sum(t == label for t in gtruth)
+
+        prec = tp / num_recoged_as_label
+        recall = tp / num_gtruth_is_label
+
+        f1_scores[i] = 2 * (prec * recall) / (prec + recall)
+
+    return f1_scores
 
 
 def update_metrics(recognition, gt_cls, metrics):
