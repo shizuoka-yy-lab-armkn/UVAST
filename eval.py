@@ -147,6 +147,13 @@ def main(data_root, results_path, dataset, split):
     return acc, edit, f1s
 
 
+def calc_framewise_f1_score(recogs: list[str], gt: list[str]) -> None:
+    print("- - - - - - - - - - - -")
+    print(f"{len(recogs)=}, {len(gt)=}")
+    print(f"{type(recogs[0])}, {type(gt[0])=}")
+    print(f"{recogs[:5]}, {type(gt[:5])=}")
+
+
 def update_metrics(recognition, gt_cls, metrics):
     metrics.update_acc(accuracy(recognition, gt_cls), len(recognition))
     edit_score_cur = edit_score(recognition, gt_cls)

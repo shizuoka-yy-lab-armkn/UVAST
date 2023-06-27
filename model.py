@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch import optim
 from tqdm import tqdm
 
-from eval import update_metrics
+from eval import update_metrics, calc_framewise_f1_score
 from losses import AttentionLoss, DurAttnCALoss, FrameWiseLoss, SegmentLossAction
 from transformers_models import uvast_model
 from utils import Metrics, get_grad_norm, params_count, write_metrics, refine_transcript
@@ -320,6 +320,7 @@ class Trainer:
                     pred_seg_expanded_dur = torch.clamp(pred_seg_expanded_dur, min=0, max=self.args.num_classes)
                     recog_seg_dur = self.convert_id_to_actions(pred_seg_expanded_dur, gt_org, actions_dict_inv)
                     update_metrics(recog_seg_dur, gt_cls_names, metrics_segmentwise_dur)
+                    calc_framewise_f1_score(recog_seg_dur, gt_cls_names)
 
                 # evaluation with Viterbi
                 if self.args.use_viterbi:
