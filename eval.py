@@ -147,6 +147,13 @@ def main(data_root, results_path, dataset, split):
     return acc, edit, f1s
 
 
+def _safe_div(a: float, b: float) -> float:
+    if abs(a) < 1e-11:
+        return 0
+    else:
+        return a / b
+
+
 def calc_framewise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names: list[str]) -> np.ndarray:
     print("- - - - - - - - - - - -")
     print(f"{len(recogs)=}, {len(gtruth)=}")
@@ -161,13 +168,10 @@ def calc_framewise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names:
         num_recoged_as_label = sum(p == label for p in recogs)
         num_gtruth_is_label = sum(t == label for t in gtruth)
 
-        prec = tp / num_recoged_as_label
-        recall = tp / num_gtruth_is_label
+        prec = _safe_div(tp, num_recoged_as_label)
+        recall = _safe_div(tp, num_gtruth_is_label)
 
-        if abs(prec + recall) < 1e-10:  # avoid zero-division
-            f1_scores[i] = 0
-        else:
-            f1_scores[i] = 2 * (prec * recall) / (prec + recall)
+        f1_scores[i] = 2 * _safe_div(prec * recall, prec + recall)
 
     return f1_scores
 
