@@ -1,0 +1,12 @@
+__pycache__/
+*.env
+.env
+
+/choose_A_NAME/
+/my_experiment/
+/bike_botsu_stage*
+/operation_stage*
+/pretrained_models/*
+!/pretrained_models/readme.*
+ymc_*
+

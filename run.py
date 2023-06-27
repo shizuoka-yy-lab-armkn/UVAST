@@ -120,6 +120,25 @@ elif args.dataset == 'breakfast':
     args.sample_rate = 1
     args.channel_masking_rate = 0.3
     args.split_segments_max_dur = 0.17
+elif args.dataset == 'operation':
+    args.num_classes = 12
+    args.sample_rate = 1
+    args.channel_masking_rate = 0.4
+    args.split_segments_max_dur = 0.15
+    args.features_dim = 100
+elif args.dataset == 'ymc_ab_0614':
+    args.num_classes = 12
+    args.sample_rate = 1
+    args.channel_masking_rate = 0.4
+    args.split_segments_max_dur = 0.15
+    args.features_dim = 42
+elif args.dataset == 'bike_master_botsu_0614':
+    args.num_classes = 37
+    args.sample_rate = 1
+    args.channel_masking_rate = 0.4
+    args.split_segments_max_dur = 0.15
+    args.features_dim = 56
+
 
 if args.seed:
     print('seed is set to {}'.format(args.seed))
