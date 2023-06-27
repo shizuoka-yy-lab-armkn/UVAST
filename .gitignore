@@ -10,4 +10,5 @@ __pycache__/
 /pretrained_models/*
 !/pretrained_models/readme.*
 ymc_*
-
+/stage1/
+/stage2/
