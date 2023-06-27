@@ -73,12 +73,16 @@ class PoissonModel(LengthModel):
         for instance_count in self.buffer.instance_counts:
             instances += instance_count
         # compute mean lengths (backup to average length for unseen classes)
-        self.mean_lengths = np.array([self.mean_lengths[i] / instances[i] if instances[i] > 0 else sum(self.mean_lengths) / sum(instances) for i in range(self.num_classes)])
+        self.mean_lengths = np.array(
+            [
+                self.mean_lengths[i] / instances[i] if instances[i] > 0 else sum(self.mean_lengths) / sum(instances)
+                for i in range(self.num_classes)
+            ]
+        )
         self.precompute_values()
 
 
 class Grammar(object):
-
     # @context: tuple containing the previous label indices
     # @label: the current label index
     # @return: the log probability of label given context p(label|context)
@@ -106,14 +110,13 @@ class Grammar(object):
 # grammar that generates only a single transcript
 # use during training to align frames to transcript
 class SingleTranscriptGrammar(Grammar):
-
     def __init__(self, transcript, n_classes):
         self.num_classes = n_classes
         transcript = transcript + [self.end_symbol()]
         self.successors = dict()
         for i in range(len(transcript)):
             context = (self.start_symbol(),) + tuple(transcript[0:i])
-            self.successors[context] = set([transcript[i]]).union( self.successors.get(context, set()) )
+            self.successors[context] = set([transcript[i]]).union(self.successors.get(context, set()))
 
     def n_classes(self):
         return self.num_classes
@@ -130,10 +133,9 @@ class SingleTranscriptGrammar(Grammar):
 
 # Viterbi decoding
 class Viterbi(object):
-
     ### helper structure ###
     class TracebackNode(object):
-        def __init__(self, label, predecessor, boundary = False):
+        def __init__(self, label, predecessor, boundary=False):
             self.label = label
             self.predecessor = predecessor
             self.boundary = boundary
@@ -144,6 +146,7 @@ class Viterbi(object):
             def __init__(self, score, traceback):
                 self.score = score
                 self.traceback = traceback
+
         def update(self, key, score, traceback):
             if (not key in self) or (self[key].score <= score):
                 self[key] = self.Hypothesis(score, traceback)
@@ -152,8 +155,15 @@ class Viterbi(object):
     # @length_model: the length model to use, must inherit from class LengthModel
     # @frame_sampling: generate hypotheses every frame_sampling frames
     # @max_hypotheses: maximal number of hypotheses. Smaller values result in stronger pruning
-    def __init__(self, args, frame_sampling = 1, max_hypotheses = np.inf):
-        mean_length_file = args.data_root_mean_duration + '/' + args.dataset + '/splits/train_split' + str(args.split) + '_mean_duration.txt'
+    def __init__(self, args, frame_sampling=1, max_hypotheses=np.inf):
+        mean_length_file = (
+            args.data_root_mean_duration
+            + "/"
+            + args.dataset
+            + "/splits/train_split"
+            + str(args.split)
+            + "_mean_duration.txt"
+        )
         length_model = PoissonModel(mean_length_file, args.num_classes, args.sample_rate)
         self.grammar = None
         self.length_model = length_model
@@ -171,13 +181,15 @@ class Viterbi(object):
         transcript = labels[0, 1:-1] - 2
         transcript = [transcript[i].item() for i in range(transcript.shape[-1])]
         self.grammar = SingleTranscriptGrammar(transcript, n_classes)
-        log_frame_probs = torch.log(frame_probs+1e-16).cpu().numpy()
+        log_frame_probs = torch.log(frame_probs + 1e-16).cpu().numpy()
         # if np.isinf(log_frame_probs).sum().item()!=0:
         #     print(1)
         # +(1e-16)
         log_frame_probs = log_frame_probs - np.max(log_frame_probs)
         assert log_frame_probs.shape[1] == self.grammar.n_classes()
-        frame_scores = np.cumsum(log_frame_probs, axis=0) # cumulative frame scores allow for quick lookup if frame_sampling > 1
+        frame_scores = np.cumsum(
+            log_frame_probs, axis=0
+        )  # cumulative frame scores allow for quick lookup if frame_sampling > 1
         # create initial hypotheses
         hyps = self.init_decoding(frame_scores)
         # decode each following time step
@@ -202,7 +214,6 @@ class Viterbi(object):
         duration_viterbi = lengths.unsqueeze(0) / lengths.sum()
         return duration_viterbi
 
-
     ### helper functions ###
     def frame_score(self, frame_scores, t, label):
         if t >= self.frame_sampling:
@@ -217,8 +228,8 @@ class Viterbi(object):
 
     def prune(self, hyps):
         if len(hyps) > self.max_hypotheses:
-            tmp = sorted( [ (hyps[key].score, key) for key in hyps ] )
-            del_keys = [ x[1] for x in tmp[0 : -self.max_hypotheses] ]
+            tmp = sorted([(hyps[key].score, key) for key in hyps])
+            del_keys = [x[1] for x in tmp[0 : -self.max_hypotheses]]
             for key in del_keys:
                 del hyps[key]
 
@@ -228,7 +239,7 @@ class Viterbi(object):
         for label in self.grammar.possible_successors(context):
             key = context + (label, self.frame_sampling)
             score = self.grammar.score(context, label) + self.frame_score(frame_scores, self.frame_sampling - 1, label)
-            hyps.update(key, score, self.TracebackNode(label, None, boundary = True))
+            hyps.update(key, score, self.TracebackNode(label, None, boundary=True))
         return hyps
 
     def decode_frame(self, t, old_hyp, frame_scores):
@@ -239,15 +250,17 @@ class Viterbi(object):
             if length + self.frame_sampling <= self.length_model.max_length():
                 new_key = context + (label, length + self.frame_sampling)
                 score = hyp.score + self.frame_score(frame_scores, t, label)
-                new_hyp.update(new_key, score, self.TracebackNode(label, hyp.traceback, boundary = False))
+                new_hyp.update(new_key, score, self.TracebackNode(label, hyp.traceback, boundary=False))
             # ... or go to the next label
             context = context + (label,)
             for new_label in self.grammar.possible_successors(context):
                 if new_label == self.grammar.end_symbol():
                     continue
                 new_key = context + (new_label, self.frame_sampling)
-                score = hyp.score + self.frame_score(frame_scores, t, label) + self.length_model.score(length, label) #+ self.grammar.score(context, new_label)
-                new_hyp.update(new_key, score, self.TracebackNode(new_label, hyp.traceback, boundary = True))
+                score = (
+                    hyp.score + self.frame_score(frame_scores, t, label) + self.length_model.score(length, label)
+                )  # + self.grammar.score(context, new_label)
+                new_hyp.update(new_key, score, self.TracebackNode(new_label, hyp.traceback, boundary=True))
         # return new hypotheses
         return new_hyp
 
@@ -256,7 +269,9 @@ class Viterbi(object):
         for key, hyp in old_hyp.items():
             context, label, length = key[0:-2], key[-2], key[-1]
             context = context + (label,)
-            score = hyp.score + self.length_model.score(length, label) #+ self.grammar.score(context, self.grammar.end_symbol())
+            score = hyp.score + self.length_model.score(
+                length, label
+            )  # + self.grammar.score(context, self.grammar.end_symbol())
             if score >= final_hyp.score:
                 final_hyp.score, final_hyp.traceback = score, hyp.traceback
         # return final hypothesis
@@ -266,6 +281,7 @@ class Viterbi(object):
         class Segment(object):
             def __init__(self, label):
                 self.label, self.length = label, 0
+
         traceback = hyp.traceback
         labels = []
         segments = [Segment(traceback.label)]
@@ -273,10 +289,8 @@ class Viterbi(object):
             segments[-1].length += self.frame_sampling
             labels += [traceback.label] * self.frame_sampling
             if traceback.boundary and not traceback.predecessor == None:
-                segments.append( Segment(traceback.predecessor.label) )
+                segments.append(Segment(traceback.predecessor.label))
             traceback = traceback.predecessor
-        segments[0].length += n_frames - len(labels) # append length of missing frames
-        labels += [hyp.traceback.label] * (n_frames - len(labels)) # append labels for missing frames
+        segments[0].length += n_frames - len(labels)  # append length of missing frames
+        labels += [hyp.traceback.label] * (n_frames - len(labels))  # append labels for missing frames
         return list(reversed(labels)), list(reversed(segments))
-
-

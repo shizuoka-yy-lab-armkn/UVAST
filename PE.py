@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import math
 
+
 def make_positions(tensor, padding_idx):
     """Replace non-padding symbols with their position numbers.
     Position numbers begin at padding_idx+1. Padding symbols are ignored.
@@ -20,10 +21,12 @@ def make_positions(tensor, padding_idx):
     mask = tensor.ne(padding_idx).int()
     return (torch.cumsum(mask, dim=1).type_as(mask) * mask).long() + padding_idx
 
+
 class SinusoidalPositionalEmbedding(nn.Module):
     """This module produces sinusoidal positional embeddings of any length.
     Padding symbols are ignored.
     """
+
     def __init__(self, embedding_dim, padding_idx, init_size=1568):
         super().__init__()
         self.embedding_dim = embedding_dim
@@ -33,7 +36,7 @@ class SinusoidalPositionalEmbedding(nn.Module):
             embedding_dim,
             padding_idx,
         )
-        self.register_buffer('_float_tensor', torch.FloatTensor(1))
+        self.register_buffer("_float_tensor", torch.FloatTensor(1))
 
     @staticmethod
     def get_embedding(num_embeddings, embedding_dim, padding_idx=None):
@@ -72,4 +75,3 @@ class SinusoidalPositionalEmbedding(nn.Module):
     def max_positions(self):
         """Maximum number of supported positions."""
         return int(1e5)  # an arbitrary large number
-
