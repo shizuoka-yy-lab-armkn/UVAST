@@ -49,6 +49,7 @@ case "$stage" in
       ${common_train_stage2_args} \
       --dataset "$dataset_name" \
       --data_root "$data_root" \
+      --num_epochs "$epochs" \
       --split "$splitID" \
       --exp_name "$stage" \
       --pretrained_model "$pretrained_model_path" \
