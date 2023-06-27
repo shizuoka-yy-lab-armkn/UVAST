@@ -47,7 +47,8 @@ common_train_stage2_args="
   --experiment_path $experiment_path
 "
 
-mkdir -p ${experiment_path}/bike_botsu_stage1
+log_file=${experiment_path}/"$dataset_name"_"$stage"/"$split".log
+mkdir -p "$(dirname "$log_file")"
 
 case "$stage" in
   stage1)
@@ -57,7 +58,7 @@ case "$stage" in
       --num_epochs "$epochs" \
       --split "$splitID" \
       --exp_name "$dataset_name" \
-      | tee ${experiment_path}/"$dataset_name"_stage1/"$split".log
+      | tee "$log_file"
     ;;
 
   stage2)
@@ -72,7 +73,7 @@ case "$stage" in
       --split "$splitID" \
       --exp_name "$dataset_name" \
       --pretrained_model "$pretrained_model_path" \
-      | tee ${experiment_path}/"$dataset_name"_stage2/"$split".log
+      | tee "$log_file"
     ;;
 
   *)
