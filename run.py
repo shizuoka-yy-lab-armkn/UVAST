@@ -288,6 +288,12 @@ elif args.dataset == "bike_master_botsu_0614_full":
     args.split_segments_max_dur = 0.20
     args.features_dim = 86
     args.n_head_dec_dur_uvast = 2
+elif args.dataset == "bike_master_botsu_0614_live_blip2":
+    args.num_classes = 37
+    args.sample_rate = 1
+    args.channel_masking_rate = 0.4
+    args.split_segments_max_dur = 0.15
+    args.features_dim = 256
 
 
 if args.seed:
