@@ -3,8 +3,8 @@
 # yabufarha adapted it from: https://github.com/colincsl/TemporalConvolutionalNetworks/blob/master/code/metrics.py (MIT License)
 
 import os
+
 import numpy as np
-import argparse
 
 
 def read_file(path):
@@ -154,7 +154,7 @@ def _safe_div(a: float, b: float) -> float:
         return a / b
 
 
-def calc_framewise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names: list[str]) -> np.ndarray:
+def calc_framewise_labelwise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names: list[str]) -> np.ndarray:
     print("- - - - - - - - - - - -")
     print(f"{len(recogs)=}, {len(gtruth)=}")
     assert type(recogs[0]) is str

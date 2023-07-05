@@ -242,6 +242,9 @@ parser.add_argument(
     action="store_true",
     help="type of the normalization for group wise CE-this is normal averaging",
 )
+
+parser.add_argument("--infer_result_file_path", default="INFER_RESULT.csv", type=str)
+
 args = parser.parse_args()
 # #############################################################################################################################################################################################
 

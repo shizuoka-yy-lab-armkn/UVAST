@@ -10,13 +10,14 @@ import torch.nn.functional as F
 from torch import optim
 from tqdm import tqdm
 
-from eval import update_metrics, calc_framewise_f1_score
-from losses import AttentionLoss, DurAttnCALoss, FrameWiseLoss, SegmentLossAction
-from transformers_models import uvast_model
-from utils import Metrics, get_grad_norm, params_count, write_metrics, refine_transcript
-
+from eval import calc_framewise_labelwise_f1_score, update_metrics
 from FIFA import fifa
-from viterbi import Viterbi, PoissonModel
+from losses import (AttentionLoss, DurAttnCALoss, FrameWiseLoss,
+                    SegmentLossAction)
+from transformers_models import uvast_model
+from utils import (Metrics, get_grad_norm, params_count, refine_transcript,
+                   write_metrics)
+from viterbi import PoissonModel, Viterbi
 
 grad_history = []
 
@@ -329,9 +330,12 @@ class Trainer:
                     update_metrics(recog_seg_dur, gt_cls_names, metrics_segmentwise_dur)
 
                     if self.args.inference_only:
-                        fscores = calc_framewise_f1_score(recog_seg_dur, gt_cls_names, all_cls_names)
+                        fscores = calc_framewise_labelwise_f1_score(recog_seg_dur, gt_cls_names, all_cls_names)
                         print("val framewise-labelwise F1:", *fscores)
                         print("val mean(framewise-labelwise F1):", fscores.mean())
+
+                        with open(self.args.infer_result_file_path, mode="at") as f:
+                            print(f"split{self.args.split}", *fscores, sep=",", file=f)
 
                 # evaluation with Viterbi
                 if self.args.use_viterbi:
