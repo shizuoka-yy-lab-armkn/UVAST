@@ -287,6 +287,7 @@ elif args.dataset == "bike_master_botsu_0614_full":
     args.channel_masking_rate = 0.4
     args.split_segments_max_dur = 0.20
     args.features_dim = 86
+    args.n_head_dec_dur_uvast = 2
 
 
 if args.seed:
