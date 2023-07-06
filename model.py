@@ -331,7 +331,6 @@ class Trainer:
 
                     if self.args.inference_only:
                         fscores = calc_framewise_labelwise_f1_score(recog_seg_dur, gt_cls_names, all_cls_names)
-                        print("val framewise-labelwise F1:", *fscores)
                         print("val mean(framewise-labelwise F1):", fscores.mean())
 
                         with open(self.args.infer_result_file_path, mode="at") as f:

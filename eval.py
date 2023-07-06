@@ -3,6 +3,7 @@
 # yabufarha adapted it from: https://github.com/colincsl/TemporalConvolutionalNetworks/blob/master/code/metrics.py (MIT License)
 
 import os
+import sys
 
 import numpy as np
 
@@ -147,19 +148,19 @@ def main(data_root, results_path, dataset, split):
     return acc, edit, f1s
 
 
-def _safe_div(a: float, b: float) -> float:
-    if abs(a) < 1e-11:
-        return 0
-    else:
-        return a / b
-
-
 def calc_framewise_labelwise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names: list[str]) -> np.ndarray:
     print("- - - - - - - - - - - -")
     print(f"{len(recogs)=}, {len(gtruth)=}")
     assert type(recogs[0]) is str
     assert type(gtruth[0]) is str
     assert len(recogs) == len(gtruth)
+
+    def _div(a: float, b: float) -> float:
+        if b == 0:
+            assert a == 0
+            return 1
+        else:
+            return a / b
 
     f1_scores = np.zeros(len(all_cls_names))
 
@@ -168,10 +169,17 @@ def calc_framewise_labelwise_f1_score(recogs: list[str], gtruth: list[str], all_
         num_recoged_as_label = sum(p == label for p in recogs)
         num_gtruth_is_label = sum(t == label for t in gtruth)
 
-        prec = _safe_div(tp, num_recoged_as_label)
-        recall = _safe_div(tp, num_gtruth_is_label)
+        prec = _div(tp, num_recoged_as_label)
+        recall = _div(tp, num_gtruth_is_label)
 
-        f1_scores[i] = 2 * _safe_div(prec * recall, prec + recall)
+        if tp == num_recoged_as_label == num_gtruth_is_label == 0:
+            YELLOW = "\x1b[93;1m"
+            NOCOLOR = "\x1b[;m"
+            print(
+                f"{YELLOW}[INFO] ｷｬ━━━━(ﾟ∀ ﾟ)━━━━!! {label=} tp = num_recoged_as_label = num_gtruth_is_label = 0{NOCOLOR}",
+            )
+
+        f1_scores[i] = 2 * (prec * recall) / (prec + recall)
 
     return f1_scores
 
