@@ -172,14 +172,14 @@ def calc_framewise_labelwise_f1_score(recogs: list[str], gtruth: list[str], all_
         prec = _div(tp, num_recoged_as_label)
         recall = _div(tp, num_gtruth_is_label)
 
+        YELLOW = "\x1b[93;1m"
+        NOCOLOR = "\x1b[;m"
         if tp == num_recoged_as_label == num_gtruth_is_label == 0:
-            YELLOW = "\x1b[93;1m"
-            NOCOLOR = "\x1b[;m"
             print(
                 f"{YELLOW}[INFO] ｷｬ━━━━(ﾟ∀ ﾟ)━━━━!! {label=} tp = num_recoged_as_label = num_gtruth_is_label = 0{NOCOLOR}",
             )
 
-        f1_scores[i] = 2 * (prec * recall) / (prec + recall)
+        f1_scores[i] = 0 if abs(prec + recall) < 1e-11 else 2 * (prec * recall) / (prec + recall)
 
     return f1_scores
 
