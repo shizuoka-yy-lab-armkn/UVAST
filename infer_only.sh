@@ -5,7 +5,7 @@ set -euo pipefail
 #------------------------------------------------
 # parse args
 if [[ $# -ne 4 ]]; then
-  echo "Usage: $0 {dataset_dir_path} {splitX} {inference_model_path}"
+  echo "Usage: $0 {dataset_dir_path} {splitX} {inference_model_path} {infer_result_file_path}"
   exit 1
 fi
 
