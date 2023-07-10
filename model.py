@@ -334,7 +334,7 @@ class Trainer:
                         print("val mean(framewise-labelwise F1):", fscores.mean())
 
                         with open(self.args.infer_result_file_path, mode="at") as f:
-                            print(f"split{self.args.split}", *fscores, sep=",", file=f)
+                            print(f"split{self.args.split}_{index + 1}", *fscores, sep=",", file=f)
 
                 # evaluation with Viterbi
                 if self.args.use_viterbi:
