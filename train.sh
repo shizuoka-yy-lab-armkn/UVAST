@@ -6,7 +6,9 @@ set -euo pipefail
 #------------------------------------------------
 # parse args
 if [[ $# -lt 4 ]]; then
-  echo "Usage: $0 {dataset_dir_path} {splitX} {stageY} {epochs} [pretrained_model_path]"
+  echo "Usage: $0 {dataset_dir_path} split{X} stage{Y} {epochs} [pretrained_model_path]"
+  echo "Example 1) $0 /data/bike_baster_botsu_0614/ split1 stage1 150"
+  echo "Example 2) $0 /data/bike_baster_botsu_0614/ split1 stage2 30 path/to/model/bike_baster_botsu_0614/epoch-120.model"
   exit 1
 fi
 
