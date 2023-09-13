@@ -2,7 +2,6 @@
 import torch
 import torch.nn as nn
 from utils import AverageMeter
-import random
 
 
 class FrameWiseLoss(nn.Module):
@@ -252,12 +251,13 @@ class AttentionLoss(nn.Module):
         # initialize average meters
         self.reset()
 
-    def __call__(self, pred_attn, target_attn, batch_target):
+    def __call__(self, pred_attn, target_attn: torch.Tensor, batch_target: torch.Tensor):
         attn_loss_nll = torch.tensor(0.0, device=target_attn.device)
         attn_loss_ce = torch.tensor(0.0, device=target_attn.device)
         attn_loss_tmp = torch.tensor(0.0, device=target_attn.device)
         attn_loss_tmp2 = torch.tensor(0.0, device=target_attn.device)
         loss_max_prob = torch.tensor(0.0, device=target_attn.device)
+        target_attn = target_attn.to(batch_target.device)
 
         valid_pred_attn_lln = None
         valid_target_attn_lln = None
