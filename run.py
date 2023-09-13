@@ -298,7 +298,7 @@ elif args.dataset == "bike_master_botsu_0614_live_blip2":
     args.split_segments_max_dur = 0.15
     args.features_dim = 256
 elif args.dataset == "bikeframe_students_live_blip2":
-    args.num_classes = 35
+    args.num_classes = 36
     args.sample_rate = 1
     args.channel_masking_rate = 0.4
     args.split_segments_max_dur = 0.15
