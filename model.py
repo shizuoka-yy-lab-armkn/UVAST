@@ -242,8 +242,10 @@ class Trainer:
         actions_dict_inv = {v: k for k, v in testing_dataloader.actions_dict_call.items()}
         all_cls_names: list[str] = list(actions_dict_inv.values())
 
-        assert all(name.isdigit() for name in all_cls_names)
-        all_cls_names.sort(key=lambda name: int(name))
+        try:
+            all_cls_names.sort(key=lambda name: int(name))
+        except:
+            all_cls_names.sort()
         # print(f"{actions_dict_inv=}")
         # print(f"{all_cls_names=}")
 
