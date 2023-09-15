@@ -332,10 +332,11 @@ class Trainer:
                     update_metrics(recog_seg_dur, gt_cls_names, metrics_segmentwise_dur)
 
                     if self.args.inference_only:
+                        assert self.args.f1_labelwise_csv_path is not None
                         fscores = calc_framewise_labelwise_f1_score(recog_seg_dur, gt_cls_names, all_cls_names)
                         print("val mean(framewise-labelwise F1):", fscores.mean())
 
-                        with open(self.args.infer_result_file_path, mode="at") as f:
+                        with open(self.args.f1_labelwise_csv_path, mode="at") as f:
                             print(f"split{self.args.split}_{index + 1}", *fscores, sep=",", file=f)
 
                 # evaluation with Viterbi
