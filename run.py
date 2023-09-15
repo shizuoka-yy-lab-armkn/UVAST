@@ -244,6 +244,7 @@ parser.add_argument(
 )
 
 parser.add_argument("--f1_labelwise_csv_path", default="F1_LABELWISE.csv", type=str)
+parser.add_argument("--framewise_inference_result_dir", default="FLAMEWISE_INFERENCE_RESULT", type=str)
 
 args = parser.parse_args()
 # #############################################################################################################################################################################################

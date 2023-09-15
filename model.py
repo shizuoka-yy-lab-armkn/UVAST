@@ -333,6 +333,13 @@ class Trainer:
 
                     if self.args.inference_only:
                         assert self.args.f1_labelwise_csv_path is not None
+                        assert self.args.framewise_inference_result_dir is not None
+
+
+                        path = os.path.join(self.args.framewise_inference_result_dir, f"split{self.args.split}_{index + 1}_frame_labels.txt")
+                        with open(path, "w") as f:
+                            f.writelines(f"{label}\n" for label in recog_seg_dur)
+
                         fscores = calc_framewise_labelwise_f1_score(recog_seg_dur, gt_cls_names, all_cls_names)
                         print("val mean(framewise-labelwise F1):", fscores.mean())
 

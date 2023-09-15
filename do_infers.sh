@@ -16,7 +16,8 @@ shift 2
 splitIDs="$@"
 
 dataName=$(basename "$dataDirPath")
-resultCsvPath="$scriptDir/stage2/logs/$dataName/f1_labelwise.csv"
+logsDir="$scriptDir/stage2/logs/$dataName"
+resultCsvPath="$logsDir/f1_labelwise.csv"
 
 echo "[INFO] dataDirPath=$dataDirPath"
 echo "[INFO] dataName=$dataName"
@@ -26,5 +27,5 @@ echo "[INFO] resultCsvPath=$(realpath --relative-base="$PWD" "$resultCsvPath")"
 rm -fv "$resultCsvPath"
 for sid in $splitIDs; do
   echo "---------- split $sid ------------"
-  ./infer_only.sh "$dataDirPath" "split${sid}" "stage2/model/$dataName/split_${sid}/${modelName}.model" "$resultCsvPath"
+  ./infer_only.sh "$dataDirPath" "split${sid}" "stage2/model/$dataName/split_${sid}/${modelName}.model" "$resultCsvPath" "$logsDir"
 done
