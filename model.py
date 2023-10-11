@@ -12,11 +12,9 @@ from tqdm import tqdm
 
 from eval import calc_framewise_labelwise_f1_score, update_metrics
 from FIFA import fifa
-from losses import (AttentionLoss, DurAttnCALoss, FrameWiseLoss,
-                    SegmentLossAction)
+from losses import AttentionLoss, DurAttnCALoss, FrameWiseLoss, SegmentLossAction
 from transformers_models import uvast_model
-from utils import (Metrics, get_grad_norm, params_count, refine_transcript,
-                   write_metrics)
+from utils import Metrics, get_grad_norm, params_count, refine_transcript, write_metrics
 from viterbi import PoissonModel, Viterbi
 
 grad_history = []
@@ -335,8 +333,10 @@ class Trainer:
                         assert self.args.f1_labelwise_csv_path is not None
                         assert self.args.framewise_inference_result_dir is not None
 
-
-                        path = os.path.join(self.args.framewise_inference_result_dir, f"split{self.args.split}_{index + 1}_frame_labels.txt")
+                        path = os.path.join(
+                            self.args.framewise_inference_result_dir,
+                            f"split{self.args.split}_{index + 1}_frame_labels.txt",
+                        )
                         with open(path, "w") as f:
                             f.writelines(f"{label}\n" for label in recog_seg_dur)
 
