@@ -419,6 +419,13 @@ def refine_transcript(transcript):
 
 
 def remove_duplicates_from_transcript(pred_transcript, out_dec):
+    """
+    メモ
+    pred_transcript: Tensor[(Batch, Frame) => ActionLabel]
+    out_dec: ???
+    """
+
+    # dictt: dict[ActionLabel, list[]]
     dictt = defaultdict(list)
     for kkind, valll in enumerate(pred_transcript[0]):
         dictt[valll.item()].append(out_dec[-1][kkind])
