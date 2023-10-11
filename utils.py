@@ -418,17 +418,17 @@ def refine_transcript(transcript):
     return transcript_refined
 
 
-def remove_duplicates_from_transcript(pred_transcript, out_dec):
+def remove_duplicates_from_transcript(pred_transcript: torch.Tensor, out_dec: torch.Tensor):
     """
     メモ
-    pred_transcript: Tensor[(Batch, Frame) => ActionLabel]
-    out_dec: ???
+    pred_transcript: Tensor[(batch, seg) => ActionLabel[int]]
+    out_dec: Tensor[(batch, seg, 64)]
     """
 
-    # dictt: dict[ActionLabel, list[]]
+    # dictt: dict[ActionLabel, list[Tensor]]
     dictt = defaultdict(list)
-    for kkind, valll in enumerate(pred_transcript[0]):
-        dictt[valll.item()].append(out_dec[-1][kkind])
+    for seg_id, action_id in enumerate(pred_transcript[0]):
+        dictt[action_id.item()].append(out_dec[-1][seg_id])
 
     pred_transcript_no_rep = []
     dec_feat = []

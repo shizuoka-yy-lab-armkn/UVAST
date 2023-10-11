@@ -7,6 +7,7 @@ from ast import arg
 from collections import defaultdict
 
 import einops
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -382,7 +383,9 @@ class uvast_model(nn.Module):
                 print(f"{type(pred_crossattn)=},  {len(pred_crossattn)}")
                 print(f"{type(pred_crossattn[0])=},  {pred_crossattn[0].size()=}")
                 print(f"{type(pred_crossattn[1])=},  {pred_crossattn[1].size()=}")
-                print(f"{type(pred_transcript)=},  {pred_transcript.size()=},  {pred_transcript.dtype} {pred_transcript=}")
+                print(
+                    f"{type(pred_transcript)=},  {pred_transcript.size()=},  {pred_transcript.dtype} {pred_transcript=}"
+                )
                 print(f"{type(out_dec)=},  {out_dec.size()=},  {out_dec.dtype}")
                 print(f"{type(dur)=},  {dur.size()=},  {dur.dtype}")
 
@@ -391,9 +394,18 @@ class uvast_model(nn.Module):
                 frames_to_segment_assignment = self.dec_duration(feat_enc, dec_feat)
 
                 pred_dur_AD = torch.softmax(frames_to_segment_assignment / 0.001, dim=2).sum(1)
-
                 pred_transcript_AD = pred_transcript_no_rep
                 assert pred_dur_AD.shape == pred_transcript_AD.shape
+
+                if self.args.save_frames_to_segment_assignment:
+                    path = "frames_to_seg_likelihood_mat.npy"
+                    print(f"\n[INFO] uvast_model.forawd(): saving to {path}")
+                    np.save(path, torch.softmax(frames_to_segment_assignment, dim=2)[0].cpu().numpy().copy())
+
+                    path = "pred_action_id_segs.numpy.txt"
+                    print(f"[INFO] uvast_model.forawd(): saving to {path}")
+                    np.savetxt(path, (pred_transcript_AD[0] - 2).cpu().numpy().copy(), delimiter=",", fmt="%d")
+
             assert seq.shape == dur[:, 1:].shape
             return pred_framewise, seq, dur[:, 1:], pred_dur_AD, pred_transcript_AD
 

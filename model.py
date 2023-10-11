@@ -341,9 +341,19 @@ class Trainer:
                     pred_seg_expanded_dur = self.convert_segments_to_labels(
                         pred_transcript_AD, pred_dur_AD, feat.shape[-1]
                     )
+
+                    if self.args.debug:
+                        print(f"\n---- before clamp ----")
+                        print(f"{pred_seg_expanded_dur.size()=}, {pred_seg_expanded_dur.min()=}, {pred_seg_expanded_dur.max()=}")
+
                     pred_seg_expanded_dur = torch.clamp(pred_seg_expanded_dur, min=0, max=self.args.num_classes)
                     recog_seg_dur = self.convert_id_to_actions(pred_seg_expanded_dur, gt_org, actions_dict_inv)
                     update_metrics(recog_seg_dur, gt_cls_names, metrics_segmentwise_dur)
+
+                    if self.args.debug:
+                        print(f"\n---- after clamp ----")
+                        print(f"{pred_seg_expanded_dur.size()=}, {pred_seg_expanded_dur.max()=}")
+                        print(f"{len(recog_seg_dur)=}, {type(recog_seg_dur[0])=}")
 
                     if self.args.inference_only:
                         assert self.args.f1_labelwise_csv_path is not None
@@ -449,7 +459,7 @@ class Trainer:
                 recog = recog[: gt_org.shape[1]]
         return recog
 
-    def convert_segments_to_labels(self, action, duration, num_frames):
+    def convert_segments_to_labels(self, action: torch.Tensor, duration: torch.Tensor, num_frames: int):
         assert action.shape[0] == 1
         labels = action[0, :] - 2
         duration = duration[0, :]

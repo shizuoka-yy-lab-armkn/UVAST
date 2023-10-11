@@ -33,4 +33,5 @@ python run.py \
 	--path_inference_model "$inference_model_path" \
 	--f1_labelwise_csv_path "$f1_labelwise_csv_path" \
 	--framewise_inference_result_dir "$framewise_inference_result_dir" \
-  --debug
+  --debug \
+  --save_frames_to_segment_assignment
