@@ -149,8 +149,9 @@ def main(data_root, results_path, dataset, split):
 
 
 def calc_framewise_labelwise_f1_score(recogs: list[str], gtruth: list[str], all_cls_names: list[str]) -> np.ndarray:
-    print("- - - - - - - - - - - -")
-    print(f"{len(recogs)=}, {len(gtruth)=}")
+    print("\n------- calc_framewise_labelwise_f1_score() -------")
+    print(f"{len(recogs)=}, {len(gtruth)=}, {len(all_cls_names)=}")
+    print(f"{all_cls_names=}")
     assert type(recogs[0]) is str
     assert type(gtruth[0]) is str
     assert len(recogs) == len(gtruth)

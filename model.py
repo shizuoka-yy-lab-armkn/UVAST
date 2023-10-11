@@ -12,9 +12,11 @@ from tqdm import tqdm
 
 from eval import calc_framewise_labelwise_f1_score, update_metrics
 from FIFA import fifa
-from losses import AttentionLoss, DurAttnCALoss, FrameWiseLoss, SegmentLossAction
+from losses import (AttentionLoss, DurAttnCALoss, FrameWiseLoss,
+                    SegmentLossAction)
 from transformers_models import uvast_model
-from utils import Metrics, get_grad_norm, params_count, refine_transcript, write_metrics
+from utils import (Metrics, get_grad_norm, params_count, refine_transcript,
+                   write_metrics)
 from viterbi import PoissonModel, Viterbi
 
 grad_history = []
@@ -287,6 +289,13 @@ class Trainer:
                     data["gt_org"],
                     data["mask"],
                 )
+                if self.args.debug:
+                    print(f"\n--------- Trainer.inference() :: test #{index + 1} -------------")
+                    print(f"{feat.size()=}")
+                    print(f"{gt.size()=}")
+                    print(f"{gt_org.size()=}")
+                    print(f"{mask.size()=}")
+
                 batch_input, batch_target, batch_target_org, mask = (
                     feat.to(device),
                     gt.to(device),
@@ -305,6 +314,13 @@ class Trainer:
                     pred_dur_AD,
                     pred_transcript_AD,
                 ) = self.model(batch_input, mask)
+                if self.args.debug:
+                    print("\n---- Trainer.inference() after model.__call__() ---")
+                    print(f"{len(pred_framewise)=}, {pred_framewise[0].size()=}, {pred_framewise[0].dtype}")
+                    print(f"{len(pred_transcript)=}, {pred_transcript[0].size()=}, {pred_transcript[0]=}")
+                    print(f"{len(pred_dur)=}, {pred_dur[0].size()=}, {pred_dur[0]=}")
+                    print(f"{pred_transcript_AD.size()=}, {pred_transcript_AD[0]=}")
+                    print(f"{pred_dur_AD.size()=}, {pred_dur_AD[0]=}")
 
                 assert batch_input.shape[0] == 1  # we only evaluate one sample at a time
 

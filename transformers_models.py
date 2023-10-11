@@ -156,6 +156,11 @@ class decoder_duration(nn.Module):
     #   - pred_transcript: predicted transcript of the decoder model
     #   - gt_transcript: ground truth transcript -> only used for training
     def forward(self, enc_feat, dec_feat, pred_transcript=None, no_split_data=None, gt_transcript=None):
+        if self.args.debug:
+            print(f"\n------ decoder_duration.forward() --------")
+            print(f"{enc_feat.size()=}")
+            print(f"{dec_feat.size()=}")
+
         tgt_pe_dur = torch.tensor([0]).to(self.args.device)
         tgt_pe = torch.tensor([0]).to(self.args.device)
         if no_split_data is not None:
@@ -184,6 +189,9 @@ class decoder_duration(nn.Module):
 
         frames_to_segment_assignment = torch.bmm(dec_feat_refined + tgt_pe, aligned_encoder_feat)
         frames_to_segment_assignment = einops.rearrange(frames_to_segment_assignment, "B S T -> B T S")
+
+        if self.args.debug:
+            print(f"{frames_to_segment_assignment.size()=}")
 
         return frames_to_segment_assignment
 
@@ -279,19 +287,23 @@ class uvast_model(nn.Module):
         if self.args.use_alignment_dec:
             self.dec_duration = decoder_duration(args)
 
-    def forward(self, inputs, mask, seg_data=None, attn_mask_gt=None, no_split_data=None):
+    def forward(self, inputs: torch.Tensor, mask: torch.Tensor, seg_data=None, attn_mask_gt=None, no_split_data=None):
         if self.args.debug:
             print(
                 "\n\n---------- uvast_model.forward(inputs, mask, seg_data, attn_mask_gt, no_split_data) ------------"
             )
-            print(f"{type(inputs)=}")
-            print(f"{type(mask)=}")
+            print(f"{type(inputs)=},  {inputs.size()=},  {inputs.dtype=}")
+            print(f"{type(mask)=},  {mask.size()=},  {mask.dtype=}")
             print(f"{type(seg_data)=}")
             print(f"{type(attn_mask_gt)=}")
             print(f"{type(no_split_data)=}")
 
         frames_to_segment_assignment = None
         pred_framewise, feat_enc = self.enc_feat(inputs, mask)
+        if self.args.debug:
+            print(f"{type(pred_framewise)=},  {len(pred_framewise)=}")
+            print(f"{type(pred_framewise[0])=},  {pred_framewise[0].size()=}")
+            print(f"{type(feat_enc)=},  {feat_enc.size()=},  {feat_enc.dtype=}")
 
         if seg_data is not None:
             tgt_emb_clsids, tgt_mask_from_pad = self.dec_embedding(seg_data)
@@ -365,9 +377,19 @@ class uvast_model(nn.Module):
 
             pred_transcript_AD = None
             pred_dur_AD = None
+
+            if self.args.debug:
+                print(f"{type(pred_crossattn)=},  {len(pred_crossattn)}")
+                print(f"{type(pred_crossattn[0])=},  {pred_crossattn[0].size()=}")
+                print(f"{type(pred_crossattn[1])=},  {pred_crossattn[1].size()=}")
+                print(f"{type(pred_transcript)=},  {pred_transcript.size()=},  {pred_transcript.dtype} {pred_transcript=}")
+                print(f"{type(out_dec)=},  {out_dec.size()=},  {out_dec.dtype}")
+                print(f"{type(dur)=},  {dur.size()=},  {dur.dtype}")
+
             if self.args.use_alignment_dec:
                 pred_transcript_no_rep, dec_feat = remove_duplicates_from_transcript(pred_transcript, out_dec)
                 frames_to_segment_assignment = self.dec_duration(feat_enc, dec_feat)
+
                 pred_dur_AD = torch.softmax(frames_to_segment_assignment / 0.001, dim=2).sum(1)
 
                 pred_transcript_AD = pred_transcript_no_rep
