@@ -280,6 +280,16 @@ class uvast_model(nn.Module):
             self.dec_duration = decoder_duration(args)
 
     def forward(self, inputs, mask, seg_data=None, attn_mask_gt=None, no_split_data=None):
+        if self.args.debug:
+            print(
+                "\n\n---------- uvast_model.forward(inputs, mask, seg_data, attn_mask_gt, no_split_data) ------------"
+            )
+            print(f"{type(inputs)=}")
+            print(f"{type(mask)=}")
+            print(f"{type(seg_data)=}")
+            print(f"{type(attn_mask_gt)=}")
+            print(f"{type(no_split_data)=}")
+
         frames_to_segment_assignment = None
         pred_framewise, feat_enc = self.enc_feat(inputs, mask)
 
