@@ -3,6 +3,13 @@ __pycache__/
 *.env
 .env
 
+tmp/
+tmp-*
+*.gz
+*.tgz
+*.zip
+*.npy
+
 /choose_A_NAME/
 /my_experiment/
 /bike_botsu_stage*
