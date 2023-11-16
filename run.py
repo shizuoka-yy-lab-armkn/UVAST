@@ -306,6 +306,21 @@ elif args.dataset == "bikeframe_students_live_blip2":
     args.channel_masking_rate = 0.4
     args.split_segments_max_dur = 0.15
     args.features_dim = 256
+elif args.dataset == "bike_students_blip2_A":
+    args.num_classes = 36
+    args.sample_rate = 1
+    args.channel_masking_rate = 0.4
+    args.split_segments_max_dur = 0.15
+    args.features_dim = 256
+elif args.dataset == "bike_students_imu_A":
+    args.num_classes = 35
+    args.sample_rate = 1
+    args.channel_masking_rate = 0.4
+    args.split_segments_max_dur = 0.15
+    args.features_dim = 18
+else:
+    print(f"Please define hyper parameters for datset {args.dataset}", file=sys.stderr)
+    exit(1)
 
 
 if args.seed:
