@@ -334,7 +334,7 @@ if args.seed:
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-print(subprocess.check_output(["conda", "--version"]))
+#print(subprocess.check_output(["conda", "--version"]))
 print("pytorch version {}", torch.__version__)
 print("numpy version {}", np.__version__)
 print("cuda", torch.version.cuda)
